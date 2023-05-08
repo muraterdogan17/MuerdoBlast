@@ -9,7 +9,9 @@ Correct display default, first, second and third icons based on neighbouring cel
 Shuffle if there are no possible moves for the player.
 
 Feature Work:
+
 Need to add rocket, bomb and discoball upgrades based on the index the player pressed
+
 Performans upgrades 
 1) functions are called way more than needed (could call them after an gameobject is destroyed or after mouseclick
 2) unnecessary repetitive nested loops

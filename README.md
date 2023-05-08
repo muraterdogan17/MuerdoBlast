@@ -1,6 +1,6 @@
 Available:
 The minimum number of same colored blocks to create a collapsible / blastable group is 2.
-Total number of colors (K) in a game can be varied between 1 to 6,
+Total number of colors (K) in a game can be varied between 2 to 6,
 all colors have a different icon for easier recognition by the player. 
 Board can have 2 to 10 rows (M) and 2 to 10 columns (N).
 Extra blocks needed to fill vacant areas created at the outside of the

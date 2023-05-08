@@ -16,9 +16,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] public int conditionC;
     [SerializeField] GameObject[] itemPrefabs;
     private List<GameObject>[] items; //board
-    Dictionary<Tuple<int, int>, int> cellGroup = new Dictionary<Tuple<int, int>, int>(); //cell -> group
-    Dictionary<int, List<Tuple<int, int>>> groupCells = new Dictionary<int, List<Tuple<int, int>>>(); //group -> cells
-    public LayerMask clickableLayerMask;
+    Dictionary<Tuple<int, int>, int> cellGroup = new Dictionary<Tuple<int, int>, int>(); //x,y -> group
+    Dictionary<int, List<Tuple<int, int>>> groupCells = new Dictionary<int, List<Tuple<int, int>>>(); //group -> list of (x,y)'s
 
     // Start is called before the first frame update
     void Start()
@@ -35,25 +34,29 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            RaycastHit raycastHit;
+            // Create a ray from the camera's position and direction based on the mouse position
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Debug.Log(Physics.Raycast(ray, out raycastHit, 100f, clickableLayerMask));
-            if (Physics.Raycast(ray, out raycastHit, 100f, clickableLayerMask))
+
+            // Convert the 3D ray to a 2D ray
+            Vector2 rayOrigin2D = new Vector2(ray.origin.x, ray.origin.y);
+            Vector2 rayDirection2D = new Vector2(ray.direction.x, ray.direction.y);
+
+            // Perform the 2D raycast and check if it hits an object
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin2D, rayDirection2D, 100f);
+
+            // Check if the raycast hit an object
+            if (hit.collider != null)
             {
-                if (raycastHit.transform != null)
-                {
-                    Debug.Log(raycastHit.collider.gameObject.name);
-                    currentClickedGameObject(raycastHit.transform.gameObject);
-                }
+                pop(hit.collider.gameObject);
             }
+        }
+
         updateIndexesAndAddItems();
         cellGroup.Clear();
         groupCells.Clear();
         findRelatedCells();
         getRelatedGroups();
         updateSprites();
-        }
-
         shuffle();
     }
 
@@ -156,7 +159,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void currentClickedGameObject(GameObject gameObject)
+    //Destroy the cells/cubes/boxes
+    public void pop(GameObject gameObject)
     {
         if (gameObject.tag == "Item")
         {
@@ -204,6 +208,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    //Algorithm that determines the area connected
     public void floodFill(int i, int j, int id, int group)
     {
         if(i < 0 || i + 1  > columnCount || j < 0 || j + 1 > rowCount)
@@ -241,7 +246,18 @@ public class GameManager : MonoBehaviour
         }
         return shuf;
     }
-    
+
+    //Used to relocates items that are shuffled
+    private void updatePositions()
+    {
+        for (int i = 0; i < columnCount; i++)
+        {
+            for (int j = 0; j < rowCount; j++)
+            {
+                items[i][j].transform.position = new Vector3(i, j, 0);
+            }
+        }
+    }
     //Simple shuffle to create matches
     private void shuffle()
     {
@@ -253,20 +269,7 @@ public class GameManager : MonoBehaviour
                 var temp = items[i].OrderBy(x => Random.value);
                 items[i] = temp.ToList();
             }
-            for (int i = 0; i < columnCount; i++)
-            {
-                for (int j = 0; j < rowCount; j++)
-                {
-                    items[i][j].transform.position = new Vector3(i, j, 0);
-                }
-            }
-            updateIndexesAndAddItems();
-            cellGroup.Clear();
-            groupCells.Clear();
-            findRelatedCells();
-            getRelatedGroups();
-            updateSprites();
+            updatePositions();
         }
     }
-
 }

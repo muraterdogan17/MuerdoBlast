@@ -271,9 +271,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d303ad630f131a48a5d25642ab9801d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rowCount: 3
-  columnCount: 3
-  colorCount: 3
+  rowCount: 10
+  columnCount: 10
+  colorCount: 6
   conditionA: 4
   conditionB: 6
   conditionC: 8
@@ -284,9 +284,6 @@ MonoBehaviour:
   - {fileID: 6420049717404170009, guid: acf7e31871ee8f94fb83ab6728c67bb3, type: 3}
   - {fileID: 6420049717404170009, guid: ea45f67d16d066c429b0cc626df69ba2, type: 3}
   - {fileID: 6420049717404170009, guid: 4214e0850aaf9164fbd876271dd0091e, type: 3}
-  clickableLayerMask:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!1 &1206327258
 GameObject:
   m_ObjectHideFlags: 0

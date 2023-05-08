@@ -240,20 +240,25 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1020387409
-Transform:
+--- !u!224 &1020387409
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1020387408}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.9539006, y: 3.3034356, z: -3.6364799}
+  m_LocalPosition: {x: 0, y: 0, z: -3.6364799}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 4.6, y: 3.95}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1020387410
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266,9 +271,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d303ad630f131a48a5d25642ab9801d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rowCount: 2
-  columnCount: 2
-  colorCount: 2
+  rowCount: 3
+  columnCount: 3
+  colorCount: 3
   conditionA: 4
   conditionB: 6
   conditionC: 8
@@ -279,7 +284,9 @@ MonoBehaviour:
   - {fileID: 6420049717404170009, guid: acf7e31871ee8f94fb83ab6728c67bb3, type: 3}
   - {fileID: 6420049717404170009, guid: ea45f67d16d066c429b0cc626df69ba2, type: 3}
   - {fileID: 6420049717404170009, guid: 4214e0850aaf9164fbd876271dd0091e, type: 3}
-  ground: {fileID: 1543387829}
+  clickableLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &1206327258
 GameObject:
   m_ObjectHideFlags: 0

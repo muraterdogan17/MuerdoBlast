@@ -8,17 +8,9 @@ public class Item : MonoBehaviour
     public enum States
     {
         Default,
-        Rocket,
-        Bomb,
-        Tornado
-    }
-
-    void OnMouseDown()
-    {
-        if(true)
-        {
-            Destroy(gameObject);
-        }
+        A,
+        B,
+        C
     }
 
     private States state;

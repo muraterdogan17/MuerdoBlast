@@ -1,14 +1,10 @@
-using MiscUtil.Xml.Linq.Extensions;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Xml.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
-using static Item;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
@@ -19,19 +15,46 @@ public class GameManager : MonoBehaviour
     [SerializeField] public int conditionB;
     [SerializeField] public int conditionC;
     [SerializeField] GameObject[] itemPrefabs;
-    private List<GameObject>[] items;
-    private List<GameObject>[] relatedCells;
+    private List<GameObject>[] items; //board
+    Dictionary<Tuple<int, int>, int> cellGroup = new Dictionary<Tuple<int, int>, int>(); //cell -> group
+    Dictionary<int, List<Tuple<int, int>>> groupCells = new Dictionary<int, List<Tuple<int, int>>>(); //group -> cells
+    public LayerMask clickableLayerMask;
 
     // Start is called before the first frame update
     void Start()
     {
         initialRandomSpawns();
+        findRelatedCells(); 
+        getRelatedGroups();
+        updateSprites();
+        //shuffle();
     }
 
     // Update is called once per frame
     void Update()
     {
-        updateAndAddItems();
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit raycastHit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Debug.Log(Physics.Raycast(ray, out raycastHit, 100f, clickableLayerMask));
+            if (Physics.Raycast(ray, out raycastHit, 100f, clickableLayerMask))
+            {
+                if (raycastHit.transform != null)
+                {
+                    Debug.Log(raycastHit.collider.gameObject.name);
+                    currentClickedGameObject(raycastHit.transform.gameObject);
+                }
+            }
+        updateIndexesAndAddItems();
+        cellGroup.Clear();
+        groupCells.Clear();
+        findRelatedCells();
+        getRelatedGroups();
+        updateSprites();
+        }
+
+        shuffle();
     }
 
     //Generate Board
@@ -42,7 +65,7 @@ public class GameManager : MonoBehaviour
         {
             items[i] = new List<GameObject>();
             for (int j = 0; j < rowCount; j++) {
-                var item = Instantiate(itemPrefabs[UnityEngine.Random.Range(0, colorCount)], new Vector2(i, j), Quaternion.identity);
+                var item = Instantiate(itemPrefabs[Random.Range(0, colorCount)], new Vector2(i, j), Quaternion.identity);
                 item.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
                 items[i].Insert(j, item);
             }
@@ -50,7 +73,7 @@ public class GameManager : MonoBehaviour
     }
 
     /* Update indexes and add new random items if anything is deleted*/
-    private void updateAndAddItems()
+    private void updateIndexesAndAddItems()
     {
         for (int i = 0; i < columnCount; i++)
         {
@@ -60,13 +83,28 @@ public class GameManager : MonoBehaviour
             items[i].RemoveAll(x => x == null);
             for (int k = 0; k < nullCount; k++)
             {
-                var newItem = Instantiate(itemPrefabs[UnityEngine.Random.Range(0, colorCount)], new Vector2(i, rowCount + k), Quaternion.identity);
+                var newItem = Instantiate(itemPrefabs[Random.Range(0, colorCount)], new Vector2(i, rowCount + k + 0.1f), Quaternion.identity);
                 newItem.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
                 items[i].Add(newItem);
             }
         }
     }
 
+    //Creats dict group -> cells
+    private void getRelatedGroups()
+    {
+
+        foreach (var item in cellGroup)
+        {
+            if (!groupCells.ContainsKey(item.Value))
+            {
+                groupCells[item.Value] = new List<Tuple<int, int>>();
+            }
+            groupCells[item.Value].Add(item.Key);
+        }
+    }
+
+    /* for debug purposes */
     private void printItems()
     {
         foreach (var item in items)
@@ -82,62 +120,153 @@ public class GameManager : MonoBehaviour
     {
         return items[i][j].GetComponent<Item>().ID;
     }
-    private void findRelatedCells()
+
+    private int getRelatedCount(Tuple<int, int> coordinates)
     {
-        Point[] visited = new Point[rowCount*columnCount];
+        int thisCellsGroup = cellGroup[coordinates];
+        int count = groupCells[thisCellsGroup].Count;
+        return count;
+    }
+
+    private void updateSprites()
+    {
         for (int i = 0; i < columnCount; i++)
         {
             for (int j = 0; j < rowCount; j++)
             {
-                Point point = new Point(i,j);
-                var val = getID(i,j);
-                if (visited.Contains(point)) continue;
-            }
-        }
-        /*
-        foreach (var item in RelatedNeighbors.Values)
-        {
-            if (item.Count <= conditionA)
-            {
-                for (int i = 0; i < item.Count; i++)
+                var coordinate = new Tuple<int, int>(i, j);
+                if (getRelatedCount(coordinate) <= conditionA)
                 {
-                    item[i].GetComponent<Item>().type = Item.States.Default;
+                    items[i][j].GetComponent<Item>().changeState(Item.States.Default);
                 }
-            }
-            else if (item.Count > conditionA && item.Count <= conditionB)
-            {
-                for (int i = 0; i < item.Count; i++)
+                else if (getRelatedCount(coordinate) <= conditionB)
                 {
-                    item[i].GetComponent<Item>().type = Item.States.Rocket;
-                }
-            }
-            else if (item.Count > conditionB && item.Count <= conditionC)
-            {
-                for (int i = 0; i < item.Count; i++)
-                {
-                    item[i].GetComponent<Item>().type = Item.States.Bomb;
-                }
-            }
-            else if (item.Count >= conditionC)
-            {
-                for (int i = 0; i < item.Count; i++)
-                {
-                    item[i].GetComponent<Item>().type = Item.States.Discoball;
-                }
-            }
+                    items[i][j].GetComponent<Item>().changeState(Item.States.A);
 
+                }
+                else if (getRelatedCount(coordinate) <= conditionC)
+                {
+                    items[i][j].GetComponent<Item>().changeState(Item.States.B);
+                }
+                else
+                {
+                    items[i][j].GetComponent<Item>().changeState(Item.States.C);
+                }
+            }
         }
-        */
     }
 
-    //Shuffle
+    public void currentClickedGameObject(GameObject gameObject)
+    {
+        if (gameObject.tag == "Item")
+        {
+            for (int i = 0; i < columnCount; i++)
+            {
+                for (int j = 0; j < rowCount; j++)
+                {
+                    if (GameObject.ReferenceEquals(items[i][j], gameObject))
+                    {
+                        var index = new Tuple<int, int>(i, j);
+                        int thisCellsGroup = cellGroup[index];
+                        List<Tuple<int, int>> itemsCoordinatesToDelete = groupCells[thisCellsGroup];
+                        if(itemsCoordinatesToDelete.Count > 1)
+                        {
+                            foreach (var cell in itemsCoordinatesToDelete)
+                            {
+                                Destroy(items[cell.Item1][cell.Item2]);
+                            }
+                            break;
+                        } else
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void findRelatedCells()
+    {
+        int group = 0;
+        for (int i = 0; i < columnCount; i++)
+        {
+            for (int j = 0; j < rowCount; j++)
+            {
+                Tuple<int, int> key = new Tuple<int, int>(i, j);
+                if (!cellGroup.ContainsKey(key))
+                {
+                    var id = getID(i, j);
+                    floodFill(i, j, id, group);
+                    group++;
+                }
+            }
+        }
+    }
+
+    public void floodFill(int i, int j, int id, int group)
+    {
+        if(i < 0 || i + 1  > columnCount || j < 0 || j + 1 > rowCount)
+        {
+            return;
+        }
+        Tuple<int, int> key = new Tuple<int, int>(i, j);
+        if (cellGroup.ContainsKey(key))
+        {
+            return;
+        }
+        if (id == items[i][j].GetComponent<Item>().ID)
+        {
+            cellGroup[new Tuple<int, int>(i, j)] = group;
+            floodFill(i + 1, j, id, group);
+            floodFill(i, j + 1, id, group);
+            floodFill(i - 1, j, id, group);
+            floodFill(i, j - 1, id, group);
+        }
+        else
+        {
+            return;
+        }
+    }
+    // Check all groups to see if they are all single blocks
+    private bool needShuffle()
+    {
+        bool shuf = true;
+        foreach (var item in groupCells)
+        {
+            if(item.Value.Count > 1)
+            {
+                shuf = false;
+            }
+        }
+        return shuf;
+    }
+    
+    //Simple shuffle to create matches
     private void shuffle()
     {
-        if(items == null)
+        
+        if (needShuffle()) //gozden gecir
         {
-
+            for (int i = 0; i < columnCount; i++)
+            {
+                var temp = items[i].OrderBy(x => Random.value);
+                items[i] = temp.ToList();
+            }
+            for (int i = 0; i < columnCount; i++)
+            {
+                for (int j = 0; j < rowCount; j++)
+                {
+                    items[i][j].transform.position = new Vector3(i, j, 0);
+                }
+            }
+            updateIndexesAndAddItems();
+            cellGroup.Clear();
+            groupCells.Clear();
+            findRelatedCells();
+            getRelatedGroups();
+            updateSprites();
         }
     }
-
 
 }

@@ -16,3 +16,7 @@ Performans upgrades
 1) functions are called way more than needed (could call them after an gameobject is destroyed or after mouseclick
 2) unnecessary repetitive nested loops
 
+
+
+Uploading MuerdoBlast - ExampleSceneForAll - PC, Mac & Linux Standalone - Unity 2021.1.5f1 Personal _DX11_ 2023-06-03 17-17-35.mp4…
+

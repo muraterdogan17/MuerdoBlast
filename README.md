@@ -17,6 +17,5 @@ Performans upgrades
 2) unnecessary repetitive nested loops
 
 
-
-Uploading MuerdoBlast - ExampleSceneForAll - PC, Mac & Linux Standalone - Unity 2021.1.5f1 Personal _DX11_ 2023-06-03 17-17-35.mp4…
+Uploading Untitled video - Made with Clipchamp.mp4…
 

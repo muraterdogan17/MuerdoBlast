@@ -16,3 +16,7 @@ Performans upgrades
 1) functions are called way more than needed (could call them after an gameobject is destroyed or after mouseclick
 2) unnecessary repetitive nested loops
 
+
+
+https://github.com/muraterdogan17/MuerdoBlast/assets/60621968/9ca71a18-f9fa-4a0b-a74c-648e26c1b231
+

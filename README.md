@@ -16,6 +16,3 @@ Performans upgrades
 1) functions are called way more than needed (could call them after an gameobject is destroyed or after mouseclick
 2) unnecessary repetitive nested loops
 
-
-Uploading Untitled video - Made with Clipchamp.mp4…
-
